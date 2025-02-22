@@ -2,29 +2,56 @@ import { setupGround, updateGround } from './ground.js'
 
 const WORLD_WIDTH = 100;
 const WORLD_HEIGHT = 30;
+const SPEED_SCALE_INCREASE = 0.00001
+
 const worldELm = document.querySelector('.world');
+const scoreElm = document.querySelector('.score');
+const startScreenElm = document.querySelector('.start-screen');
 
 setPixelToWorldScale()
 window.addEventListener('resize', setPixelToWorldScale)
-
-setupGround()
+document.addEventListener("keydown", handleStart, { once: true })
 
 // gjør sånn at dinosauren ikke beverger seg fortere eller saktere avhengig av hvor mange frames per sekund det er
-let lastTime = 0
+let lastTime
+let speedScale
+let score = 0
 function update(time) {
-    if (lastTime === 0) {
-        lastTime = time
-        window.requestAnimationFrame(update)
-        return
+    if (lastTime == null) {
+        lastTime = time;
+        window.requestAnimationFrame(update);
+        return;
     }
-    const delta = time - lastTime
+    const delta = time - lastTime;
     
-    updateGround(delta, 1)
+    updateGround(delta, speedScale);
+    updateSpeedScale(delta);
+    updateScore(delta);
     
-    lastTime = time
+    lastTime = time;
+    window.requestAnimationFrame(update);
+}
+
+
+function updateSpeedScale(delta) {
+    speedScale += delta * SPEED_SCALE_INCREASE
+
+}
+
+function updateScore(delta) {
+    score += delta * 0.01
+    scoreElm.textContent = Math.floor(score)
+}
+
+ function handleStart() {
+    lastTime = null
+    speedScale = 1
+    score = 0
+    setupGround()
+    startScreenElm.classList.add("hide")
     window.requestAnimationFrame(update)
 }
-window.requestAnimationFrame(update)
+
 
 function setPixelToWorldScale() {
     let worldToPixelScale
