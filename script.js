@@ -1,13 +1,13 @@
 import { setupGround, updateGround } from './ground.js'
-import { setupDino, updateDino } from './dino.js'
-import { setupCactus, updateCactus } from './cactus.js'
+import { setupDino, updateDino, getDinoRect, setDinoLose } from './dino.js'
+import { setupCactus, updateCactus, getCactusRects } from './cactus.js'
 
 const WORLD_WIDTH = 100;
 const WORLD_HEIGHT = 30;
 const SPEED_SCALE_INCREASE = 0.00001
 
 const worldELm = document.querySelector('.world');
-const scoreElm = document.querySelector('.score');
+const scoreElm = document.querySelector('.scoreCount');
 const startScreenElm = document.querySelector('.start-screen');
 
 setPixelToWorldScale()
@@ -31,11 +31,25 @@ function update(time) {
     updateScore(delta);
     updateDino(delta, speedScale);
     updateCactus(delta, speedScale);
+    if (checkLose()) return handleLose()
     
     lastTime = time;
     window.requestAnimationFrame(update);
 }
 
+function checkLose() {
+    const dinoRect = getDinoRect()
+    return getCactusRects().some(rect => isColliding(rect, dinoRect))
+}
+
+function isColliding(rect1, rect2) {
+    return (
+    rect1.left < rect2.right && 
+    rect1.right > rect2.left && 
+    rect1.top < rect2.bottom && 
+    rect1.bottom > rect2.top
+    )
+}
 
 function updateSpeedScale(delta) {
     speedScale += delta * SPEED_SCALE_INCREASE
@@ -56,6 +70,14 @@ function updateScore(delta) {
     setupCactus()
     startScreenElm.classList.add("hide")
     window.requestAnimationFrame(update)
+}
+
+function handleLose() {
+    setDinoLose()
+    setTimeout(() => {
+        document.addEventListener("keydown", handleStart, { once: true })
+        startScreenElm.classList.remove("hide")
+    }, 100)
 }
 
 

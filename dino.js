@@ -2,7 +2,7 @@ import { getCustomProperty, incrementCustomProperty, setCustomProperty } from ".
 
 const dinoElm = document.querySelector('.dino')
 const JUMP_SPEED = 0.45
-const GRAVITY = 0.002
+const GRAVITY = 0.0015
 const DINO_FRAME_COUNT = 2
 const FRAME_TIME = 100
 
@@ -25,6 +25,15 @@ export function updateDino(delta, speedScale) {
     handleRun(delta, speedScale)
     handleJump(delta);
 }
+
+export function getDinoRect() {
+    return dinoElm.getBoundingClientRect()
+}
+
+export function setDinoLose() {
+    dinoElm.src = 'img/dino-lose.png'
+}
+
 
 function handleRun(delta, speedScale) {
     if (isJumping) {
