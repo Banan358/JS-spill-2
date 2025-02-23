@@ -2,39 +2,44 @@ import { setupGround, updateGround } from './ground.js'
 import { setupDino, updateDino, getDinoRect, setDinoLose } from './dino.js'
 import { setupCactus, updateCactus, getCactusRects } from './cactus.js'
 
-const WORLD_WIDTH = 100;
-const WORLD_HEIGHT = 30;
+const WORLD_WIDTH = 100
+const WORLD_HEIGHT = 30
 const SPEED_SCALE_INCREASE = 0.00001
 
-const worldELm = document.querySelector('.world');
-const scoreElm = document.querySelector('.scoreCount');
-const startScreenElm = document.querySelector('.start-screen');
+const worldELm = document.querySelector('.world')
+const scoreElm = document.querySelector('.scoreCount')
+const highscoreElm = document.querySelector('.highscoreCount')
+const startScreenElm = document.querySelector('.start-screen')
 
 setPixelToWorldScale()
 window.addEventListener('resize', setPixelToWorldScale)
 document.addEventListener("keydown", handleStart, { once: true })
 
-// gjør sånn at dinosauren ikke beverger seg fortere eller saktere avhengig av hvor mange frames per sekund det er
 let lastTime
 let speedScale
 let score = 0
+let highscore = localStorage.getItem('highscore') || 0
+
+highscoreElm.textContent = highscore
+
+// gjør sånn at dinosauren ikke beverger seg fortere eller saktere avhengig av hvor mange frames per sekund det er
 function update(time) {
     if (lastTime == null) {
-        lastTime = time;
-        window.requestAnimationFrame(update);
+        lastTime = time
+        window.requestAnimationFrame(update)
         return;
     }
-    const delta = time - lastTime;
+    const delta = time - lastTime
     
-    updateGround(delta, speedScale);
-    updateSpeedScale(delta);
-    updateScore(delta);
-    updateDino(delta, speedScale);
-    updateCactus(delta, speedScale);
+    updateGround(delta, speedScale)
+    updateSpeedScale(delta)
+    updateScore(delta)
+    updateDino(delta, speedScale)
+    updateCactus(delta, speedScale)
     if (checkLose()) return handleLose()
     
     lastTime = time;
-    window.requestAnimationFrame(update);
+    window.requestAnimationFrame(update)
 }
 
 function checkLose() {
@@ -74,6 +79,11 @@ function updateScore(delta) {
 
 function handleLose() {
     setDinoLose()
+    if (score > highscore) {
+        highscore = Math.floor(score)
+        localStorage.setItem('highscore', highscore) // Lagre highscore i localStorage
+        highscoreElm.textContent = highscore // Oppdater highscore element
+    }
     setTimeout(() => {
         document.addEventListener("keydown", handleStart, { once: true })
         startScreenElm.classList.remove("hide")
